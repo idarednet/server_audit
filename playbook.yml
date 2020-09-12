@@ -1,0 +1,11 @@
+---
+- name: Automated Security Audit Tasker
+  hosts: localhost
+  vars:
+    - first_run: true
+    - enable_stunnel: true
+  tasks:
+    - include_tasks: tasks/local-setup.yml
+    - include_tasks: tasks/audit-cmds.yml
+
+ 

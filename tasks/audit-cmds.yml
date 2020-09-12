@@ -1,0 +1,65 @@
+---
+- name: execute commands
+  become: true
+  command: "{{ item }}"
+  loop:
+    - "date"
+    - "date +%s"
+    - "whoami"
+    - "uname -a"
+    - "cat /proc/version"
+    - "hostname"
+    - "id"
+    - "uptime"
+    - "who -r"
+    - "who -a"
+    - "/sbin/lsmod"
+    - "/usr/sbin/ss -natu"
+    - "lastlog"
+    - "last"
+    - "w"
+    - "cat /etc/passwd"
+    - "env"
+    - "cat /etc/shadow"
+    - "cat /etc/group"
+    - "ls -lr /root"
+    - "ls -lr /home"
+    - "sestatus"
+    - "cat /etc/shells"
+    - "umask -S"
+    - "cat /etc/login.defs"
+    - "cat /etc/crontab"
+    - "ls -l /etc/anacrontab"
+    - "cat /etc/anacrontab"
+    - "systemctl list-timers --all"
+    - "/sbin/ifconfig -a"
+    - "/sbin/ip a"
+    - "arp -an"
+    - "netstat -unta"
+    - "netstat -rn"
+    - "cat /etc/resolv.conf"
+    - "ps -elf"
+    - "systemctl status"
+  loop_control:
+    index_var: cmd_idx
+  register: command_output
+  ignore_errors: true
+
+- local_action: lineinfile line={{ command_output | to_nice_json(indent=2) }} path=./files/json/{{ ansible_default_ipv4.address }}/{{ controller_datetime }}_audit.json create=true
+
+- name: execute shell commands
+  become: true
+  shell: "{{ item }}"
+  loop:
+    - "cat /etc/*elease"
+    - "echo $PATH"
+    - "ls -lR /etc/cron*"
+    - "ps aux 2>/dev/null | awk '{print $11}'|xargs -r ls -la 2>/dev/null |awk '!x[$0]++'"
+    - "ps aux 2>/dev/null | awk '{print $11}' | grep -v '\\[' | grep '\\/' | xargs file 2>/dev/null"
+    - "find /etc -type f | xargs sha1sum"
+  loop_control:
+    index_var: shell_idx
+  register: shell_output
+  ignore_errors: true
+
+- local_action: lineinfile line={{ shell_output | to_nice_json(indent=2) }} path=./files/json/{{ ansible_default_ipv4.address}}/{{ controller_datetime }}_audit.json

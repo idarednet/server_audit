@@ -1,0 +1,12 @@
+---
+- name: Set controller_time variable to current datetime on controller
+  connection: local
+  set_fact:
+    controller_datetime: "{{ ansible_date_time.year }}-{{ ansible_date_time.month }}-{{ ansible_date_time.day }}"
+    cacheable: yes
+
+- name: make directory on controller to store output from audit commands
+  connection: local
+  file:
+    path: "./files/json/{{ ansible_default_ipv4.address }}"
+    state: directory
